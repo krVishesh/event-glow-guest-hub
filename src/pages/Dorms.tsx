@@ -1,6 +1,8 @@
+
 import React, { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { DormCard } from "@/components/cards/DormCard";
+import { GuestCard } from "@/components/cards/GuestCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, RotateCcw } from "lucide-react";

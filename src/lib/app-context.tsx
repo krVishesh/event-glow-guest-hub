@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { User, Guest, Dorm, Update, UserRole, GuestStatus } from './types';
-import { mockUsers, mockGuests, mockDorms, mockUpdates, getUserById } from './mock-data';
+import { mockUsers, mockGuests, mockDorms, mockUpdates } from './mock-data';
 
 interface AppContextProps {
   // Current user
@@ -195,6 +195,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   };
   
+  // Helper function to get a user by ID
+  const getUserById = (id: string): User | undefined => {
+    return users.find(user => user.id === id);
+  };
+  
   // Function to update a guest
   const updateGuest = (updatedGuest: Guest) => {
     const now = new Date().toISOString();
@@ -284,15 +289,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
     
-    if (originalGuest.assignedVolunteers.join('') !== updatedGuest.assignedVolunteers.join('')) {
+    if (originalGuest.assignedVolunteers?.join('') !== updatedGuest.assignedVolunteers?.join('')) {
       updateRecords.push({
         id: Math.random().toString(36).substring(2, 10),
         timestamp: now,
         updateType: 'Volunteer Assignment',
         entityId: updatedGuest.id,
         entityType: 'Guest',
-        oldValue: originalGuest.assignedVolunteers.map(id => getUserById(id)?.name).join(', ') || 'None',
-        newValue: updatedGuest.assignedVolunteers.map(id => getUserById(id)?.name).join(', ') || 'None',
+        oldValue: originalGuest.assignedVolunteers?.map(id => getUserById(id)?.name).join(', ') || 'None',
+        newValue: updatedGuest.assignedVolunteers?.map(id => getUserById(id)?.name).join(', ') || 'None',
         updatedBy: currentUser?.id || '',
         updatedByName: currentUser?.name || '',
         updatedByRole: currentUser?.role || 'Volunteer'

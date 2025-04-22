@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useApp } from "@/lib/app-context";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatTimestamp } from "@/lib/mock-data";
+import { formatTimeAgo } from "@/lib/mock-data";
 import { UserRole, Update } from "@/lib/types";
 
 const UpdatesPage: React.FC = () => {
@@ -248,7 +247,7 @@ const UpdatesPage: React.FC = () => {
                                 </Badge>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {formatTimestamp(update.timestamp)}
+                                {formatTimeAgo(update.timestamp)}
                               </span>
                             </div>
                             
@@ -307,7 +306,7 @@ const UpdatesPage: React.FC = () => {
                                 </Badge>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {formatTimestamp(update.timestamp)}
+                                {formatTimeAgo(update.timestamp)}
                               </span>
                             </div>
                             
@@ -365,7 +364,7 @@ const UpdatesPage: React.FC = () => {
                                 </Badge>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {formatTimestamp(update.timestamp)}
+                                {formatTimeAgo(update.timestamp)}
                               </span>
                             </div>
                             
@@ -431,7 +430,7 @@ const UpdatesPage: React.FC = () => {
                                 </Badge>
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {formatTimestamp(update.timestamp)}
+                                {formatTimeAgo(update.timestamp)}
                               </span>
                             </div>
                             
