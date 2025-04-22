@@ -12,7 +12,6 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    // Simulate loading state
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -20,17 +19,7 @@ const Dashboard: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  console.log('Dashboard render:', { 
-    currentUser, 
-    guestsCount: guests?.length, 
-    dormsCount: dorms?.length,
-    isLoading,
-    error 
-  });
-  
-  // Redirect to login if no user
   if (!currentUser) {
-    console.log('No current user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
@@ -85,28 +74,21 @@ const Dashboard: React.FC = () => {
   }
   
   try {
-    // Filter guests based on current user role
     const filteredGuests = currentUser?.role === 'Volunteer' 
       ? guests.filter(g => g.assignedVolunteers && g.assignedVolunteers.includes(currentUser.id))
       : guests;
     
-    console.log('Filtered guests:', filteredGuests.length);
-    
-    // Get counts for stats
     const totalGuests = filteredGuests.length;
     const checkedInGuests = filteredGuests.filter(g => g.status === 'Checked-in').length;
     const pendingGuests = filteredGuests.filter(g => g.status === 'Registered').length;
     
-    // Dorm stats
     const totalBeds = dorms.reduce((acc, dorm) => acc + dorm.capacity, 0);
     const occupiedBeds = dorms.reduce((acc, dorm) => acc + dorm.occupiedBeds, 0);
     
-    // Recent activity: either assigned guests or all guests
     const recentGuests = [...filteredGuests]
       .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
       .slice(0, 3);
     
-    // Available dorms
     const availableDorms = dorms
       .filter(dorm => dorm.occupiedBeds < dorm.capacity)
       .sort((a, b) => (a.capacity - a.occupiedBeds) - (b.capacity - b.occupiedBeds))
@@ -189,7 +171,6 @@ const Dashboard: React.FC = () => {
       </div>
     );
   } catch (error) {
-    console.error('Error in Dashboard:', error);
     setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     return (
       <div className="p-4 text-red-500">

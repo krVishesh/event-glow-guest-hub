@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatTimeAgo } from "@/lib/mock-data";
 import { UserRole, Update } from "@/lib/types";
+import { RotateCcw } from "lucide-react";
 
 const UpdatesPage: React.FC = () => {
-  const { filteredUpdates, updateFilters, setUpdateFilters, users, getGuestById, getDormById } = useApp();
+  const { filteredUpdates, updateFilters, setUpdateFilters, users, getGuestById, getDormById, resetAllFilters } = useApp();
   
   // Update type options
   const updateTypes = [
@@ -114,6 +115,11 @@ const UpdatesPage: React.FC = () => {
     }
   };
 
+  // Reset all filters
+  const resetFilters = () => {
+    resetAllFilters();
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <div>
@@ -124,13 +130,21 @@ const UpdatesPage: React.FC = () => {
       </div>
       
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex-1 md:max-w-sm">
+        <div className="flex items-center gap-2">
           <Input
             placeholder="Search updates..."
             value={updateFilters.search}
             onChange={handleSearchChange}
-            className="w-full"
+            className="max-w-sm"
           />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={resetFilters}
+            title="Reset filters"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
         </div>
         
         <div className="flex flex-wrap gap-2">

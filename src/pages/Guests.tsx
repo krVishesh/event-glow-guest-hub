@@ -327,8 +327,8 @@ const GuestsPage: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <ScrollArea className="overflow-y-auto" style={{ maxHeight: 'calc(80vh - 120px)' }}>
-                <div className="grid gap-6 sm:grid-cols-2">
+              <ScrollArea className="h-[calc(80vh-180px)]">
+                <div className="grid gap-6 sm:grid-cols-2 p-1">
                   <div className="space-y-4">
                     <div>
                       <h3 className="mb-2 font-medium">Guest Status</h3>

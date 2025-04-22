@@ -169,7 +169,7 @@ export const mockUsers: User[] = [
   {
     id: "u1",
     name: "Admin User",
-    email: "admin@example.com",
+    email: "admin@eventglow.com",
     role: "Manager",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -177,7 +177,7 @@ export const mockUsers: User[] = [
   {
     id: "u2",
     name: "Coordinator User",
-    email: "coordinator@example.com",
+    email: "coordinator@eventglow.com",
     role: "Coordinator",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -185,7 +185,7 @@ export const mockUsers: User[] = [
   {
     id: "u3",
     name: "Desk User",
-    email: "desk@example.com",
+    email: "desk@eventglow.com",
     role: "Desk",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -193,7 +193,7 @@ export const mockUsers: User[] = [
   {
     id: "v1",
     name: "Volunteer 1",
-    email: "volunteer1@example.com",
+    email: "volunteer1@eventglow.com",
     role: "Volunteer",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -201,7 +201,7 @@ export const mockUsers: User[] = [
   {
     id: "v2",
     name: "Volunteer 2",
-    email: "volunteer2@example.com",
+    email: "volunteer2@eventglow.com",
     role: "Volunteer",
     isActive: true,
     lastActive: new Date().toISOString()

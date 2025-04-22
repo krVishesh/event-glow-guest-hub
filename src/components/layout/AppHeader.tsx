@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { LogOut, User, Sun, Moon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const AppHeader: React.FC = () => {
-  const { currentUser } = useApp();
+  const { currentUser, setCurrentUser } = useApp();
+  const navigate = useNavigate();
   const [showUserDialog, setShowUserDialog] = React.useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     // Check if the user has already chosen a theme
@@ -41,8 +43,9 @@ export const AppHeader: React.FC = () => {
   }, [darkMode]);
   
   const handleLogout = () => {
-    // Implement logout logic here
-    console.log("Logging out...");
+    setCurrentUser(null);
+    setShowUserDialog(false);
+    navigate('/login');
   };
   
   return (

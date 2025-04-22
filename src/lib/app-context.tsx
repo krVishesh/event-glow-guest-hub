@@ -62,8 +62,30 @@ interface AppContextProps {
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Current user state
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // Current user state with localStorage persistence
+  const [currentUser, setCurrentUserState] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('currentUser');
+      return savedUser ? JSON.parse(savedUser) : null;
+    }
+    return null;
+  });
+
+  // Update localStorage when currentUser changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (currentUser) {
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('currentUser');
+      }
+    }
+  }, [currentUser]);
+
+  // Wrapper for setCurrentUser to handle localStorage
+  const setCurrentUser = (user: User | null) => {
+    setCurrentUserState(user);
+  };
   
   // Data state
   const [users, setUsers] = useState<User[]>(mockUsers);

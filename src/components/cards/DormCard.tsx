@@ -1,9 +1,8 @@
-
 import React from "react";
+import { formatTimeAgo } from "@/lib/mock-data";
+import { Dorm } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dorm, Guest } from "@/lib/types";
-import { formatTimeAgo } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
 
 interface DormCardProps {
@@ -12,111 +11,93 @@ interface DormCardProps {
 }
 
 export const DormCard: React.FC<DormCardProps> = ({ dorm, onClick }) => {
-  const { guests, users, getUpdatesForEntity } = useApp();
+  const { guests, currentUser } = useApp();
   
   // Get assigned guests
-  const assignedGuests = guests.filter(g => dorm.guests.includes(g.id));
-  
-  // Get last updated by user
-  const lastUpdatedBy = users.find(u => u.id === dorm.lastUpdatedBy);
-  
-  // Get recent updates
-  const updates = getUpdatesForEntity(dorm.id).slice(0, 2);
+  const assignedGuests = guests.filter(g => g.dormId === dorm.id);
   
   // Calculate occupancy percentage
-  const occupancyPercentage = Math.round((dorm.occupiedBeds / dorm.capacity) * 100);
+  const occupancyPercentage = (dorm.occupiedBeds / dorm.capacity) * 100;
   
-  // Determine status color
+  // Get status color based on occupancy
   const getStatusColor = () => {
-    if (occupancyPercentage >= 100) return "bg-red-500";
-    if (occupancyPercentage >= 75) return "bg-orange-400";
-    if (occupancyPercentage >= 50) return "bg-yellow-400";
-    return "bg-green-500";
+    if (occupancyPercentage >= 90) return 'bg-red-500 dark:bg-red-600';
+    if (occupancyPercentage >= 70) return 'bg-yellow-400 dark:bg-yellow-500';
+    return 'bg-green-500 dark:bg-green-600';
   };
 
   return (
     <Card 
-      className="card-shadow card-hover overflow-hidden"
+      className="card-shadow card-hover dark:bg-gray-900 dark:border-gray-800"
       onClick={onClick}
     >
       <CardContent className="p-0">
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative">
           {/* Status bar based on occupancy */}
-          <div className="sticky top-0 z-10 h-2 w-full bg-gray-200">
+          <div className="sticky top-0 z-10 h-2 w-full bg-gray-200 dark:bg-gray-700">
             <div 
               className={`h-full ${getStatusColor()}`} 
               style={{ width: `${occupancyPercentage}%` }}
             ></div>
           </div>
           
-          <div className="p-5 h-full overflow-y-auto">
+          <div className="p-5">
             <div className="mb-3 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold">{dorm.name}</h3>
+                <h3 className="text-lg font-semibold dark:text-white">{dorm.name}</h3>
               </div>
               
               <Badge 
-                variant={dorm.occupiedBeds >= dorm.capacity ? "destructive" : "secondary"}
+                variant={
+                  occupancyPercentage >= 90 
+                    ? 'destructive' 
+                    : occupancyPercentage >= 70
+                      ? 'secondary'
+                      : 'default'
+                }
                 className="text-xs"
               >
-                {dorm.occupiedBeds >= dorm.capacity ? "Full" : "Available"}
+                {dorm.occupiedBeds}/{dorm.capacity} Beds
               </Badge>
             </div>
             
             <div className="grid gap-2 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Capacity:</span>
-                <span className="font-medium">
-                  <span className={dorm.occupiedBeds >= dorm.capacity ? "text-red-600" : "text-green-600"}>
-                    {dorm.occupiedBeds}
-                  </span>
-                  /{dorm.capacity} beds
-                </span>
+                <span className="text-gray-500 dark:text-gray-400">Capacity:</span>
+                <span className="font-medium dark:text-white">{dorm.capacity} beds</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Empty beds:</span>
-                <span className="font-medium">
-                  {dorm.capacity - dorm.occupiedBeds}
-                </span>
+                <span className="text-gray-500 dark:text-gray-400">Occupied:</span>
+                <span className="font-medium dark:text-white">{dorm.occupiedBeds} beds</span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Guest types:</span>
-                <div className="flex flex-wrap gap-1 justify-end">
-                  {Array.from(new Set(assignedGuests.map(g => g.type))).map(type => (
-                    <Badge key={type} className={`badge-${type.toLowerCase()} text-xs`}>
-                      {type}
-                    </Badge>
-                  ))}
-                  {assignedGuests.length === 0 && <span className="text-gray-400">None</span>}
-                </div>
+                <span className="text-gray-500 dark:text-gray-400">Available:</span>
+                <span className="font-medium dark:text-white">{dorm.capacity - dorm.occupiedBeds} beds</span>
               </div>
             </div>
             
             {assignedGuests.length > 0 && (
-              <div className="mt-4 border-t border-gray-100 pt-3">
-                <h4 className="mb-2 text-xs font-medium text-gray-500">Assigned Guests</h4>
+              <div className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-3">
+                <h4 className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">Assigned Guests</h4>
                 <div className="space-y-1">
                   {assignedGuests.slice(0, 3).map(guest => (
-                    <div key={guest.id} className="rounded-md bg-gray-50 px-2 py-1 text-xs">
+                    <div key={guest.id} className="rounded-md bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs dark:text-gray-300">
                       {guest.name}
-                      <Badge className={`badge-${guest.type.toLowerCase()} ml-2 text-xs`}>
-                        {guest.type}
-                      </Badge>
                     </div>
                   ))}
                   {assignedGuests.length > 3 && (
-                    <div className="text-right text-xs text-gray-500">
-                      + {assignedGuests.length - 3} more
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      +{assignedGuests.length - 3} more
                     </div>
                   )}
                 </div>
               </div>
             )}
             
-            <div className="mt-4 text-right text-xs text-gray-400">
-              Last updated by {lastUpdatedBy?.name || "Unknown"} • {formatTimeAgo(dorm.lastUpdated)}
+            <div className="mt-4 text-right text-xs text-gray-400 dark:text-gray-500">
+              Last updated by {dorm.lastUpdatedBy || "Unknown"} • {formatTimeAgo(dorm.lastUpdated)}
             </div>
           </div>
         </div>

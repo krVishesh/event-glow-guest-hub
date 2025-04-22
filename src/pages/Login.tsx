@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useApp } from "@/lib/app-context";
 import { LogIn } from "lucide-react";
+
+const DEFAULT_PASSWORD = "eventglow2024";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -20,27 +22,25 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError("");
 
+    console.log("Attempting login with:", { email, password });
+    console.log("Available users:", users);
+
     const user = users.find(
       (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
     );
 
-    if (user) {
+    console.log("Found user:", user);
+    console.log("Password match:", password === DEFAULT_PASSWORD);
+
+    if (user && password === DEFAULT_PASSWORD) {
+      console.log("Login successful, setting user:", user);
       setCurrentUser(user);
       navigate("/dashboard");
     } else {
+      console.log("Login failed - invalid credentials");
       setError("Invalid email or password");
     }
     setIsLoading(false);
-  };
-
-  const handleQuickLogin = (userEmail: string) => {
-    setEmail(userEmail);
-    setPassword("password");
-    const user = users.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
-    if (user) {
-      setCurrentUser(user);
-      navigate("/dashboard");
-    }
   };
 
   return (
@@ -109,26 +109,6 @@ const Login: React.FC = () => {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-              <p className="mb-2">Quick Login:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {users.map((user) => (
-                  <Button
-                    key={user.id}
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => handleQuickLogin(user.email)}
-                  >
-                    <div className="flex flex-col items-start">
-                      <span className="font-semibold">{user.role}</span>
-                      <span className="text-xs">{user.email}</span>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </CardFooter>
         </Card>
       </div>
     </div>
