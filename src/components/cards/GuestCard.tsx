@@ -16,8 +16,8 @@ interface GuestCardProps {
 export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
   const { users, dorms, getUpdatesForEntity, currentUser } = useApp();
   
-  // Get the assigned volunteers
-  const volunteers = guest.assignedVolunteers.map(id => 
+  // Get the assigned volunteers - make sure assignedVolunteers exists and is an array
+  const volunteers = (guest.assignedVolunteers || []).map(id => 
     users.find(u => u.id === id)
   ).filter(Boolean);
   

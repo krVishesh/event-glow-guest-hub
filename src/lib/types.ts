@@ -51,7 +51,8 @@ export type UpdateType =
   | 'Guest Added'
   | 'Guest Edited'
   | 'Dorm Added'
-  | 'Dorm Edited';
+  | 'Dorm Edited'
+  | 'Guest Location';
 
 export interface Update {
   id: string;

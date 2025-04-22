@@ -56,10 +56,23 @@ const GuestsPage: React.FC = () => {
   };
   
   // Handle volunteer assignment change
-  const handleVolunteerChange = (guest: Guest, newVolunteerId: string) => {
+  const handleVolunteerChange = (guest: Guest, volunteerId: string) => {
+    // Check if volunteer is already assigned
+    const volunteerIndex = guest.assignedVolunteers.indexOf(volunteerId);
+    let updatedVolunteers: string[];
+    
+    if (volunteerIndex >= 0) {
+      // Remove volunteer if already assigned
+      updatedVolunteers = [...guest.assignedVolunteers];
+      updatedVolunteers.splice(volunteerIndex, 1);
+    } else {
+      // Add volunteer if not assigned
+      updatedVolunteers = [...guest.assignedVolunteers, volunteerId];
+    }
+    
     updateGuest({
       ...guest,
-      assignedVolunteerId: newVolunteerId
+      assignedVolunteers: updatedVolunteers
     });
   };
   
@@ -98,6 +111,17 @@ const GuestsPage: React.FC = () => {
     }
   };
 
+  // Reset all filters
+  const resetFilters = () => {
+    setGuestFilters({
+      search: '',
+      type: [],
+      status: [],
+      dorm: [],
+      volunteer: []
+    });
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <div>
@@ -115,6 +139,16 @@ const GuestsPage: React.FC = () => {
             onChange={handleSearchChange}
             className="w-full"
           />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetFilters}
+          >
+            Reset Filters
+          </Button>
         </div>
         
         <div className="flex flex-wrap gap-2">
@@ -251,7 +285,7 @@ const GuestsPage: React.FC = () => {
       
       {/* Guest Detail Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           {selectedGuest && (
             <>
               <DialogHeader>
@@ -311,14 +345,14 @@ const GuestsPage: React.FC = () => {
                   </div>
                   
                   <div>
-                    <h3 className="mb-2 font-medium">Assigned Volunteer</h3>
+                    <h3 className="mb-2 font-medium">Assigned Volunteers</h3>
                     <div className="flex flex-wrap gap-2">
                       {users
                         .filter(user => user.role === 'Volunteer')
                         .map(volunteer => (
                           <Button
                             key={volunteer.id}
-                            variant={selectedGuest.assignedVolunteerId === volunteer.id ? "default" : "outline"}
+                            variant={selectedGuest.assignedVolunteers.includes(volunteer.id) ? "default" : "outline"}
                             size="sm"
                             onClick={() => handleVolunteerChange(selectedGuest, volunteer.id)}
                           >
