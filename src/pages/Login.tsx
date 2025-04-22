@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -21,29 +20,32 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError("");
 
-    // Simulate a login delay
-    setTimeout(() => {
-      // In a real app, we would validate against a backend
-      // For now, just find a user with matching email - users should have email property
-      const user = users.find(
-        (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
-      );
+    const user = users.find(
+      (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
+    );
 
-      if (user) {
-        // In a real app, you would validate the password here
-        // For demo purposes, any password works
-        setCurrentUser(user);
-        navigate("/");
-      } else {
-        setError("Invalid email or password");
-      }
-      setIsLoading(false);
-    }, 1000);
+    if (user) {
+      setCurrentUser(user);
+      navigate("/dashboard");
+    } else {
+      setError("Invalid email or password");
+    }
+    setIsLoading(false);
+  };
+
+  const handleQuickLogin = (userEmail: string) => {
+    setEmail(userEmail);
+    setPassword("password");
+    const user = users.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+    if (user) {
+      setCurrentUser(user);
+      navigate("/dashboard");
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-violet-50 to-violet-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-violet-50 to-violet-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="w-full max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <Card className="border-2 border-violet-100 dark:border-gray-700 shadow-xl dark:bg-gray-900">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center dark:text-white">
@@ -109,24 +111,21 @@ const Login: React.FC = () => {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-              <p>Sample Demo Accounts:</p>
-              <div className="grid grid-cols-2 gap-2 mt-1">
-                <div className="rounded-md bg-gray-100 dark:bg-gray-800 p-2 text-xs">
-                  <p className="font-semibold">Manager</p>
-                  <p>manager@example.com</p>
-                </div>
-                <div className="rounded-md bg-gray-100 dark:bg-gray-800 p-2 text-xs">
-                  <p className="font-semibold">Coordinator</p>
-                  <p>coordinator@example.com</p>
-                </div>
-                <div className="rounded-md bg-gray-100 dark:bg-gray-800 p-2 text-xs">
-                  <p className="font-semibold">Desk</p>
-                  <p>desk@example.com</p>
-                </div>
-                <div className="rounded-md bg-gray-100 dark:bg-gray-800 p-2 text-xs">
-                  <p className="font-semibold">Volunteer</p>
-                  <p>volunteer@example.com</p>
-                </div>
+              <p className="mb-2">Quick Login:</p>
+              <div className="grid grid-cols-2 gap-2">
+                {users.map((user) => (
+                  <Button
+                    key={user.id}
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => handleQuickLogin(user.email)}
+                  >
+                    <div className="flex flex-col items-start">
+                      <span className="font-semibold">{user.role}</span>
+                      <span className="text-xs">{user.email}</span>
+                    </div>
+                  </Button>
+                ))}
               </div>
             </div>
           </CardFooter>

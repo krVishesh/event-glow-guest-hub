@@ -62,8 +62,8 @@ interface AppContextProps {
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Current user state (defaults to manager for demo)
-  const [currentUser, setCurrentUser] = useState<User | null>(mockUsers.find(u => u.role === 'Manager') || null);
+  // Current user state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   // Data state
   const [users, setUsers] = useState<User[]>(mockUsers);

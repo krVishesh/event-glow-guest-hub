@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -47,59 +46,57 @@ export const AppHeader: React.FC = () => {
   };
   
   return (
-    <header className="border-b border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800">
-      <div className="flex h-16 items-center px-4 md:px-6">
-        <SidebarTrigger className="mr-2" />
-        
-        <div className="ml-auto flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <div className="live-indicator">
-                <span>Live Updates</span>
+    <header className="sticky top-0 z-40 w-full border-b bg-background">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          <SidebarTrigger className="lg:hidden" />
+          <div className="hidden lg:block">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <div className="live-indicator">
+                  <span>Live Updates</span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleDarkMode} 
+            className="rounded-full"
+            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {darkMode ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-slate-700" />
+            )}
+          </Button>
           
-          <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
+          <div className="h-8 w-px bg-border" />
           
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleDarkMode} 
-                className="rounded-full"
-                title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              >
-                {darkMode ? (
-                  <Sun className="h-5 w-5 text-yellow-400" />
-                ) : (
-                  <Moon className="h-5 w-5 text-slate-700" />
-                )}
-              </Button>
-            </div>
-            
-            <div className="h-8 w-px bg-gray-200 dark:bg-gray-700" />
-            
-            <Button
-              variant="ghost"
-              className="flex items-center rounded-full"
-              onClick={() => setShowUserDialog(true)}
-            >
-              <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 dark:bg-primary-900">
-                <span className="font-medium text-primary-700 dark:text-primary-300">
-                  {currentUser?.name.charAt(0) || "U"}
-                </span>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 rounded-full"
+            onClick={() => setShowUserDialog(true)}
+          >
+            <span className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-100 dark:bg-primary-900">
+              <span className="font-medium text-primary-700 dark:text-primary-300">
+                {currentUser?.name.charAt(0) || "U"}
               </span>
-            </Button>
-          </div>
+            </span>
+            <span className="hidden md:inline-block">{currentUser?.name}</span>
+          </Button>
         </div>
       </div>
 
       <Dialog open={showUserDialog} onOpenChange={setShowUserDialog}>
-        <DialogContent className="sm:max-w-md dark:bg-gray-900 dark:border-gray-800">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="dark:text-white">User Account</DialogTitle>
+            <DialogTitle>User Account</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="flex items-center gap-4">
@@ -107,12 +104,12 @@ export const AppHeader: React.FC = () => {
                 <User className="h-6 w-6 text-primary-700 dark:text-primary-300" />
               </div>
               <div>
-                <h3 className="font-medium dark:text-white">{currentUser?.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{currentUser?.role}</p>
+                <h3 className="font-medium">{currentUser?.name}</h3>
+                <p className="text-sm text-muted-foreground">{currentUser?.role}</p>
               </div>
             </div>
             
-            <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
+            <div className="border-t pt-4">
               <Button 
                 variant="destructive" 
                 onClick={handleLogout}

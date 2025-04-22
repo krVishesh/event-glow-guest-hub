@@ -1,4 +1,3 @@
-
 // Type definitions for the app
 
 export type UserRole = 'Volunteer' | 'Desk' | 'Coordinator' | 'Manager';
@@ -10,6 +9,7 @@ export type GuestStatus = 'Registered' | 'Checked-in' | 'Checked-out' | 'No-show
 export interface User {
   id: string;
   name: string;
+  email: string;
   role: UserRole;
   isActive: boolean;
   lastActive: string;

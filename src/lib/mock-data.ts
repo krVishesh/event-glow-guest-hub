@@ -167,22 +167,25 @@ export const mockGuests: Guest[] = [
 
 export const mockUsers: User[] = [
   {
-    id: "m1",
-    name: "Admin Manager",
+    id: "u1",
+    name: "Admin User",
+    email: "admin@example.com",
     role: "Manager",
     isActive: true,
     lastActive: new Date().toISOString()
   },
   {
-    id: "c1",
-    name: "Event Coordinator",
+    id: "u2",
+    name: "Coordinator User",
+    email: "coordinator@example.com",
     role: "Coordinator",
     isActive: true,
     lastActive: new Date().toISOString()
   },
   {
-    id: "d1",
-    name: "Front Desk Staff",
+    id: "u3",
+    name: "Desk User",
+    email: "desk@example.com",
     role: "Desk",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -190,6 +193,7 @@ export const mockUsers: User[] = [
   {
     id: "v1",
     name: "Volunteer 1",
+    email: "volunteer1@example.com",
     role: "Volunteer",
     isActive: true,
     lastActive: new Date().toISOString()
@@ -197,6 +201,7 @@ export const mockUsers: User[] = [
   {
     id: "v2",
     name: "Volunteer 2",
+    email: "volunteer2@example.com",
     role: "Volunteer",
     isActive: true,
     lastActive: new Date().toISOString()
