@@ -54,6 +54,16 @@ const DormsPage: React.FC = () => {
     });
   };
   
+  // Reset all filters
+  const resetFilters = () => {
+    setDormFilters({
+      search: '',
+      availability: [],
+      type: [],
+      capacity: []
+    });
+  };
+  
   // Open dorm detail dialog
   const openDormDetail = (dorm: Dorm) => {
     setSelectedDorm(dorm);
@@ -97,8 +107,8 @@ const DormsPage: React.FC = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setDormFilters(prev => ({...prev, search: ''}))}
-            title="Reset search"
+            onClick={resetFilters}
+            title="Reset all filters"
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
@@ -217,7 +227,7 @@ const DormsPage: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6 overflow-y-auto pr-2">
+              <div className="space-y-6 overflow-y-auto pr-2" style={{ maxHeight: 'calc(80vh - 120px)' }}>
                 <div className="grid gap-4 rounded-md border border-border bg-gray-50 p-4 sm:grid-cols-3">
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground">Total Capacity</div>

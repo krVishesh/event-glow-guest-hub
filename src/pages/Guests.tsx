@@ -22,6 +22,7 @@ const GuestsPage: React.FC = () => {
   // State for guest detail dialog
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editedGuest, setEditedGuest] = useState<Guest | null>(null);
   
   // Guest type and status options
   const guestTypes: GuestType[] = ['Special', 'Foreign', 'Normal', 'Events', 'Workers', 'VITians'];
@@ -54,54 +55,74 @@ const GuestsPage: React.FC = () => {
     }));
   };
   
+  // Reset all filters
+  const resetFilters = () => {
+    setGuestFilters({
+      search: '',
+      type: [],
+      status: [],
+      dorm: [],
+      volunteer: []
+    });
+  };
+  
   // Handle guest status change
   const handleStatusChange = (guest: Guest, newStatus: GuestStatus) => {
-    updateGuest({
-      ...guest,
-      status: newStatus
+    setEditedGuest(prev => {
+      if (!prev) return { ...guest, status: newStatus };
+      return { ...prev, status: newStatus };
     });
   };
   
   // Handle volunteer assignment change
   const handleVolunteerChange = (guest: Guest, volunteerId: string) => {
     // Check if volunteer is already assigned
-    const volunteerIndex = guest.assignedVolunteers.indexOf(volunteerId);
+    const volunteerIndex = (guest.assignedVolunteers || []).indexOf(volunteerId);
     let updatedVolunteers: string[];
     
     if (volunteerIndex >= 0) {
       // Remove volunteer if already assigned
-      updatedVolunteers = [...guest.assignedVolunteers];
+      updatedVolunteers = [...(guest.assignedVolunteers || [])];
       updatedVolunteers.splice(volunteerIndex, 1);
     } else {
       // Add volunteer if not assigned
-      updatedVolunteers = [...guest.assignedVolunteers, volunteerId];
+      updatedVolunteers = [...(guest.assignedVolunteers || []), volunteerId];
     }
     
-    updateGuest({
-      ...guest,
-      assignedVolunteers: updatedVolunteers
+    setEditedGuest(prev => {
+      if (!prev) return { ...guest, assignedVolunteers: updatedVolunteers };
+      return { ...prev, assignedVolunteers: updatedVolunteers };
     });
   };
   
   // Handle dorm assignment change
   const handleDormChange = (guest: Guest, newDormId: string | null) => {
-    updateGuest({
-      ...guest,
-      dormId: newDormId
+    setEditedGuest(prev => {
+      if (!prev) return { ...guest, dormId: newDormId };
+      return { ...prev, dormId: newDormId };
     });
   };
   
   // Handle payment status change
   const handlePaymentChange = (guest: Guest, newPaymentStatus: 'Paid' | 'Pending' | 'NA') => {
-    updateGuest({
-      ...guest,
-      paymentStatus: newPaymentStatus
+    setEditedGuest(prev => {
+      if (!prev) return { ...guest, paymentStatus: newPaymentStatus };
+      return { ...prev, paymentStatus: newPaymentStatus };
     });
+  };
+  
+  // Save changes to the guest
+  const saveGuestChanges = () => {
+    if (editedGuest) {
+      updateGuest(editedGuest);
+      setEditedGuest(null);
+    }
   };
   
   // Open guest detail dialog
   const openGuestDetail = (guest: Guest) => {
     setSelectedGuest(guest);
+    setEditedGuest(guest); // Initialize with the current guest data
     setDialogOpen(true);
   };
 
@@ -116,17 +137,6 @@ const GuestsPage: React.FC = () => {
       case 'VITians': return 'badge-vitians';
       default: return '';
     }
-  };
-
-  // Reset all filters
-  const resetFilters = () => {
-    setGuestFilters({
-      search: '',
-      type: [],
-      status: [],
-      dorm: [],
-      volunteer: []
-    });
   };
 
   return (
@@ -161,8 +171,8 @@ const GuestsPage: React.FC = () => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setGuestFilters(prev => ({...prev, search: ''}))}
-            title="Reset search"
+            onClick={resetFilters}
+            title="Reset all filters"
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
@@ -303,7 +313,7 @@ const GuestsPage: React.FC = () => {
       {/* Guest Detail Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          {selectedGuest && (
+          {selectedGuest && editedGuest && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-3 text-xl font-bold">
@@ -322,9 +332,9 @@ const GuestsPage: React.FC = () => {
                       {guestStatuses.map(status => (
                         <Button
                           key={status}
-                          variant={selectedGuest.status === status ? "default" : "outline"}
+                          variant={editedGuest.status === status ? "default" : "outline"}
                           size="sm"
-                          onClick={() => handleStatusChange(selectedGuest, status)}
+                          onClick={() => handleStatusChange(editedGuest, status)}
                         >
                           {status}
                         </Button>
@@ -336,25 +346,25 @@ const GuestsPage: React.FC = () => {
                     <h3 className="mb-2 font-medium">Payment Status</h3>
                     <div className="flex flex-wrap gap-2">
                       <Button
-                        variant={selectedGuest.paymentStatus === 'Paid' ? "default" : "outline"}
+                        variant={editedGuest.paymentStatus === 'Paid' ? "default" : "outline"}
                         size="sm"
-                        className={selectedGuest.paymentStatus === 'Paid' ? "bg-green-600" : ""}
-                        onClick={() => handlePaymentChange(selectedGuest, 'Paid')}
+                        className={editedGuest.paymentStatus === 'Paid' ? "bg-green-600" : ""}
+                        onClick={() => handlePaymentChange(editedGuest, 'Paid')}
                       >
                         Paid
                       </Button>
                       <Button
-                        variant={selectedGuest.paymentStatus === 'Pending' ? "default" : "outline"}
+                        variant={editedGuest.paymentStatus === 'Pending' ? "default" : "outline"}
                         size="sm"
-                        className={selectedGuest.paymentStatus === 'Pending' ? "bg-yellow-600" : ""}
-                        onClick={() => handlePaymentChange(selectedGuest, 'Pending')}
+                        className={editedGuest.paymentStatus === 'Pending' ? "bg-yellow-600" : ""}
+                        onClick={() => handlePaymentChange(editedGuest, 'Pending')}
                       >
                         Pending
                       </Button>
                       <Button
-                        variant={selectedGuest.paymentStatus === 'NA' ? "default" : "outline"}
+                        variant={editedGuest.paymentStatus === 'NA' ? "default" : "outline"}
                         size="sm"
-                        onClick={() => handlePaymentChange(selectedGuest, 'NA')}
+                        onClick={() => handlePaymentChange(editedGuest, 'NA')}
                       >
                         Not Applicable
                       </Button>
@@ -369,9 +379,9 @@ const GuestsPage: React.FC = () => {
                         .map(volunteer => (
                           <Button
                             key={volunteer.id}
-                            variant={selectedGuest.assignedVolunteers.includes(volunteer.id) ? "default" : "outline"}
+                            variant={(editedGuest.assignedVolunteers || []).includes(volunteer.id) ? "default" : "outline"}
                             size="sm"
-                            onClick={() => handleVolunteerChange(selectedGuest, volunteer.id)}
+                            onClick={() => handleVolunteerChange(editedGuest, volunteer.id)}
                           >
                             {volunteer.name}
                           </Button>
@@ -385,9 +395,9 @@ const GuestsPage: React.FC = () => {
                     <h3 className="mb-2 font-medium">Dorm Assignment</h3>
                     <div className="flex flex-wrap gap-2">
                       <Button
-                        variant={selectedGuest.dormId === null ? "default" : "outline"}
+                        variant={editedGuest.dormId === null ? "default" : "outline"}
                         size="sm"
-                        onClick={() => handleDormChange(selectedGuest, null)}
+                        onClick={() => handleDormChange(editedGuest, null)}
                       >
                         No Dorm
                       </Button>
@@ -397,9 +407,9 @@ const GuestsPage: React.FC = () => {
                         .map(dorm => (
                           <Button
                             key={dorm.id}
-                            variant={selectedGuest.dormId === dorm.id ? "default" : "outline"}
+                            variant={editedGuest.dormId === dorm.id ? "default" : "outline"}
                             size="sm"
-                            onClick={() => handleDormChange(selectedGuest, dorm.id)}
+                            onClick={() => handleDormChange(editedGuest, dorm.id)}
                           >
                             {dorm.name} ({dorm.occupiedBeds}/{dorm.capacity})
                           </Button>
@@ -410,7 +420,7 @@ const GuestsPage: React.FC = () => {
                   <div>
                     <h3 className="mb-2 font-medium">Group Size</h3>
                     <div className="text-lg font-medium">
-                      {selectedGuest.groupSize} {selectedGuest.groupSize === 1 ? 'person' : 'people'}
+                      {editedGuest.groupSize} {editedGuest.groupSize === 1 ? 'person' : 'people'}
                     </div>
                   </div>
                   
@@ -420,18 +430,27 @@ const GuestsPage: React.FC = () => {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Check-in:</span>
                         <span className="font-medium">
-                          {selectedGuest.checkInTime ? new Date(selectedGuest.checkInTime).toLocaleString() : 'Not checked in'}
+                          {editedGuest.checkInTime ? new Date(editedGuest.checkInTime).toLocaleString() : 'Not checked in'}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Check-out:</span>
                         <span className="font-medium">
-                          {selectedGuest.checkOutTime ? new Date(selectedGuest.checkOutTime).toLocaleString() : 'Not checked out'}
+                          {editedGuest.checkOutTime ? new Date(editedGuest.checkOutTime).toLocaleString() : 'Not checked out'}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end">
+                <Button 
+                  onClick={saveGuestChanges}
+                  disabled={JSON.stringify(selectedGuest) === JSON.stringify(editedGuest)}
+                >
+                  Save Changes
+                </Button>
               </div>
             </>
           )}

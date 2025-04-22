@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -92,17 +93,17 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans transition-colors duration-300;
   }
 }
 
 @layer components {
   .card-shadow {
-    @apply shadow-[0_2px_12px_rgba(0,0,0,0.08)];
+    @apply shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.15)];
   }
   
   .card-hover {
-    @apply transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:-translate-y-1;
+    @apply transition-all duration-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:-translate-y-1;
   }
   
   .pill {
@@ -114,35 +115,54 @@
   }
   
   .badge-special {
-    @apply bg-purple-100 text-guest-special;
+    @apply bg-purple-100 text-guest-special dark:bg-purple-900 dark:text-purple-200;
   }
   
   .badge-foreign {
-    @apply bg-pink-100 text-guest-foreign;
+    @apply bg-pink-100 text-guest-foreign dark:bg-pink-900 dark:text-pink-200;
   }
   
   .badge-normal {
-    @apply bg-blue-100 text-guest-normal;
+    @apply bg-blue-100 text-guest-normal dark:bg-blue-900 dark:text-blue-200;
   }
   
   .badge-events {
-    @apply bg-sky-100 text-guest-events;
+    @apply bg-sky-100 text-guest-events dark:bg-sky-900 dark:text-sky-200;
   }
   
   .badge-workers {
-    @apply bg-orange-100 text-guest-workers;
+    @apply bg-orange-100 text-guest-workers dark:bg-orange-900 dark:text-orange-200;
   }
   
   .badge-vitians {
-    @apply bg-cyan-100 text-guest-vitians;
+    @apply bg-cyan-100 text-guest-vitians dark:bg-cyan-900 dark:text-cyan-200;
   }
   
   .live-indicator {
-    @apply inline-flex items-center space-x-1 text-xs text-green-600 font-medium;
+    @apply inline-flex items-center space-x-1 text-xs text-green-600 dark:text-green-400 font-medium;
   }
   
   .live-indicator::before {
     content: "";
-    @apply block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse-light;
+    @apply block w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 animate-pulse-light;
   }
+}
+
+/* Add dark mode animation */
+@keyframes pulse-light {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-light {
+  animation: pulse-light 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Add smooth transition to dark mode toggle */
+.dark-mode-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }

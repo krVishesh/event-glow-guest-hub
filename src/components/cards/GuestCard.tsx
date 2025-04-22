@@ -1,31 +1,36 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { formatTimeAgo } from "@/lib/mock-data";
 import { Guest } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useApp } from "@/lib/app-context";
-import { MapPin, CircleCheck } from "lucide-react";
+import { MapPin, CircleCheck, Save } from "lucide-react";
 
 interface GuestCardProps {
   guest: Guest;
   onClick?: () => void;
+  editable?: boolean;
 }
 
-export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
-  const { users, dorms, getUpdatesForEntity, currentUser } = useApp();
+export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable = false }) => {
+  const { users, dorms, getUpdatesForEntity, currentUser, updateGuest } = useApp();
+  
+  // Local state for tracking changes
+  const [localGuest, setLocalGuest] = useState<Guest>(guest);
+  const [hasChanges, setHasChanges] = useState(false);
   
   // Get the assigned volunteers - make sure assignedVolunteers exists and is an array
-  const volunteers = (guest.assignedVolunteers || []).map(id => 
+  const volunteers = (localGuest.assignedVolunteers || []).map(id => 
     users.find(u => u.id === id)
   ).filter(Boolean);
   
   // Get the assigned dorm
-  const dorm = guest.dormId ? dorms.find(d => d.id === guest.dormId) : null;
+  const dorm = localGuest.dormId ? dorms.find(d => d.id === localGuest.dormId) : null;
   
   // Get recent updates
-  const updates = getUpdatesForEntity(guest.id).slice(0, 2);
+  const updates = getUpdatesForEntity(localGuest.id).slice(0, 2);
 
   // Get guest type badge class
   const getGuestTypeBadgeClass = (type: string) => {
@@ -39,42 +44,54 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
       default: return '';
     }
   };
+  
+  // Handle saving changes
+  const handleSaveChanges = () => {
+    updateGuest(localGuest);
+    setHasChanges(false);
+  };
+  
+  // Update local state with changes
+  const updateLocalGuest = (updates: Partial<Guest>) => {
+    setLocalGuest(prev => ({ ...prev, ...updates }));
+    setHasChanges(true);
+  };
 
   return (
     <Card 
       className="card-shadow card-hover overflow-hidden"
-      onClick={onClick}
+      onClick={!editable ? onClick : undefined}
     >
       <CardContent className="p-0">
         <div className="relative">
-          <div className={`h-2 w-full ${getGuestTypeBadgeClass(guest.type)}`}></div>
+          <div className={`h-2 w-full ${getGuestTypeBadgeClass(localGuest.type)}`}></div>
           
           <div className="p-5">
             <div className="mb-3 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold">{guest.name}</h3>
+                <h3 className="text-lg font-semibold">{localGuest.name}</h3>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <Badge className={getGuestTypeBadgeClass(guest.type)}>
-                    {guest.type}
+                  <Badge className={getGuestTypeBadgeClass(localGuest.type)}>
+                    {localGuest.type}
                   </Badge>
                   
                   <Badge variant="outline">
-                    {guest.status}
+                    {localGuest.status}
                   </Badge>
                 </div>
               </div>
               
-              {guest.groupSize > 1 && (
+              {localGuest.groupSize > 1 && (
                 <Badge variant="secondary" className="text-xs">
-                  Group of {guest.groupSize}
+                  Group of {localGuest.groupSize}
                 </Badge>
               )}
             </div>
             
-            {guest.location && (
+            {localGuest.location && (
               <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
                 <MapPin className="h-4 w-4" />
-                <span>{guest.location}</span>
+                <span>{localGuest.location}</span>
               </div>
             )}
             
@@ -106,17 +123,33 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
                 <Badge 
                   variant="secondary"
                   className={`text-xs ${
-                    guest.paymentStatus === 'Paid' 
+                    localGuest.paymentStatus === 'Paid' 
                       ? 'bg-green-100 text-green-700' 
-                      : guest.paymentStatus === 'Pending' 
+                      : localGuest.paymentStatus === 'Pending' 
                         ? 'bg-yellow-100 text-yellow-700' 
                         : 'bg-gray-100 text-gray-700'
                   }`}
                 >
-                  {guest.paymentStatus}
+                  {localGuest.paymentStatus}
                 </Badge>
               </div>
             </div>
+            
+            {editable && hasChanges && (
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSaveChanges();
+                  }}
+                  className="flex items-center gap-2"
+                  size="sm"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </Button>
+              </div>
+            )}
             
             {updates.length > 0 && (
               <div className="mt-4 border-t border-gray-100 pt-3">
@@ -133,7 +166,7 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
             )}
             
             <div className="mt-4 text-right text-xs text-gray-400">
-              Last updated {formatTimeAgo(guest.lastUpdated)}
+              Last updated {formatTimeAgo(localGuest.lastUpdated)}
             </div>
           </div>
         </div>
