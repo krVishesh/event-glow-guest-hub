@@ -40,9 +40,9 @@ export const DormCard: React.FC<DormCardProps> = ({ dorm, onClick }) => {
       onClick={onClick}
     >
       <CardContent className="p-0">
-        <div className="relative">
+        <div className="relative h-full max-h-[80vh] overflow-y-auto">
           {/* Status bar based on occupancy */}
-          <div className="h-2 w-full bg-gray-200">
+          <div className="sticky top-0 h-2 w-full bg-gray-200">
             <div 
               className={`h-full ${getStatusColor()}`} 
               style={{ width: `${occupancyPercentage}%` }}

@@ -517,23 +517,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return true;
         
       case 'Desk':
-        // Desk users can't access the Update View
         if (action === 'view_updates') return false;
-        
-        // Can perform most actions except those reserved for higher roles
+        if (action === 'add_guest' || action === 'add_dorm') return true;
+        if (action === 'update_payment' || action === 'update_dorm') return true;
+        if (action === 'update_status' || action === 'update_location') return true;
         return true;
         
       case 'Volunteer':
         // Volunteers can only update status and location of their assigned guests
         if ('assignedVolunteers' in entity) {
-          if (!entity.assignedVolunteers.includes(currentUser.id)) {
+          if (!entity.assignedVolunteers?.includes(currentUser.id)) {
             return false;
           }
           
           // Volunteers can only update status (except check-in/out) and location
           return action === 'update_status' || action === 'update_location';
         }
-        
         return false;
         
       default:

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { DormCard } from "@/components/cards/DormCard";
-import { GuestCard } from "@/components/cards/GuestCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Plus, Search, RotateCcw } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,15 @@ import { Dorm, Guest } from "@/lib/types";
 import { formatTimeAgo } from "@/lib/mock-data";
 
 const DormsPage: React.FC = () => {
-  const { filteredDorms, dormFilters, setDormFilters, guests, updateDorm } = useApp();
+  const { 
+    filteredDorms, 
+    dormFilters, 
+    setDormFilters,
+    currentUser,
+    canPerformAction,
+    guests, 
+    updateDorm
+  } = useApp();
   
   // State for dorm detail dialog
   const [selectedDorm, setSelectedDorm] = useState<Dorm | null>(null);
@@ -57,21 +65,41 @@ const DormsPage: React.FC = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dorm Management</h1>
-        <p className="text-muted-foreground">
-          Manage dorms and track occupancy in real-time.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dorm Management</h1>
+          <p className="text-muted-foreground">
+            Manage dorms and track occupancy in real-time.
+          </p>
+        </div>
+        
+        {currentUser && ['Manager', 'Coordinator', 'Desk'].includes(currentUser.role) && (
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Dorm
+          </Button>
+        )}
       </div>
       
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex-1 md:max-w-sm">
-          <Input
-            placeholder="Search dorms..."
-            value={dormFilters.search}
-            onChange={handleSearchChange}
-            className="w-full"
-          />
+        <div className="flex items-center gap-2 flex-1 md:max-w-sm">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search dorms..."
+              value={dormFilters.search}
+              onChange={handleSearchChange}
+              className="pl-8 w-full"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setDormFilters(prev => ({...prev, search: ''}))}
+            title="Reset search"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
         </div>
         
         <div className="flex flex-wrap gap-2">

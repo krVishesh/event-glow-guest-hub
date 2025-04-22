@@ -1,16 +1,23 @@
-
 import React, { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { GuestCard } from "@/components/cards/GuestCard";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { GuestType, GuestStatus, User, Guest } from "@/lib/types";
+import { Plus, Search, RotateCcw } from "lucide-react";
 
 const GuestsPage: React.FC = () => {
-  const { filteredGuests, guestFilters, setGuestFilters, users, dorms, updateGuest } = useApp();
+  const { 
+    filteredGuests, 
+    guestFilters, 
+    setGuestFilters, 
+    currentUser,
+    canPerformAction,
+    users, dorms, updateGuest
+  } = useApp();
   
   // State for guest detail dialog
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
@@ -124,30 +131,40 @@ const GuestsPage: React.FC = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Guest Management</h1>
-        <p className="text-muted-foreground">
-          Manage guests, assign dorms, and track status.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Guest Management</h1>
+          <p className="text-muted-foreground">
+            Manage guests, assign dorms, and track status.
+          </p>
+        </div>
+        
+        {currentUser && ['Manager', 'Coordinator', 'Desk'].includes(currentUser.role) && (
+          <Button className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add Guest
+          </Button>
+        )}
       </div>
       
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex-1 md:max-w-sm">
-          <Input
-            placeholder="Search guests..."
-            value={guestFilters.search}
-            onChange={handleSearchChange}
-            className="w-full"
-          />
-        </div>
-        
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 md:max-w-sm">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search guests..."
+              value={guestFilters.search}
+              onChange={handleSearchChange}
+              className="pl-8 w-full"
+            />
+          </div>
           <Button
             variant="outline"
-            size="sm"
-            onClick={resetFilters}
+            size="icon"
+            onClick={() => setGuestFilters(prev => ({...prev, search: ''}))}
+            title="Reset search"
           >
-            Reset Filters
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
         
