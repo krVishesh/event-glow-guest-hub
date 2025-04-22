@@ -22,8 +22,9 @@ export interface Guest {
   status: GuestStatus;
   dormId: string | null;
   groupSize: number;
-  assignedVolunteerId: string;
+  assignedVolunteers: string[]; // Array of volunteer IDs
   paymentStatus: 'Paid' | 'Pending' | 'NA';
+  location?: string;
   checkInTime?: string;
   checkOutTime?: string;
   lastUpdated: string;

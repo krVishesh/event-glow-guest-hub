@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { User, Guest, Dorm, Update, UserRole, GuestStatus } from './types';
 import { mockUsers, mockGuests, mockDorms, mockUpdates, getUserById } from './mock-data';
@@ -55,6 +54,9 @@ interface AppContextProps {
   getDormById: (id: string) => Dorm | undefined;
   getUpdatesForEntity: (entityId: string) => Update[];
   canPerformAction: (action: string, entity: Guest | Dorm) => boolean;
+
+  // Reset filters
+  resetAllFilters: () => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -119,7 +121,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     // Volunteer filter
-    if (guestFilters.volunteer.length > 0 && !guestFilters.volunteer.includes(guest.assignedVolunteerId)) {
+    if (guestFilters.volunteer.length > 0 && !guestFilters.volunteer.includes(guest.assignedVolunteers.join(''))) {
       return false;
     }
     
@@ -220,6 +222,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updatedByRole: currentUser?.role || 'Volunteer'
       });
     }
+
+    if (originalGuest.location !== updatedGuest.location) {
+      updateRecords.push({
+        id: Math.random().toString(36).substring(2, 10),
+        timestamp: now,
+        updateType: 'Guest Location',
+        entityId: updatedGuest.id,
+        entityType: 'Guest',
+        oldValue: originalGuest.location || 'None',
+        newValue: updatedGuest.location || 'None',
+        updatedBy: currentUser?.id || '',
+        updatedByName: currentUser?.name || '',
+        updatedByRole: currentUser?.role || 'Volunteer'
+      });
+    }
     
     if (originalGuest.dormId !== updatedGuest.dormId) {
       // Update the dorm occupancy if changed
@@ -267,15 +284,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
     
-    if (originalGuest.assignedVolunteerId !== updatedGuest.assignedVolunteerId) {
+    if (originalGuest.assignedVolunteers.join('') !== updatedGuest.assignedVolunteers.join('')) {
       updateRecords.push({
         id: Math.random().toString(36).substring(2, 10),
         timestamp: now,
         updateType: 'Volunteer Assignment',
         entityId: updatedGuest.id,
         entityType: 'Guest',
-        oldValue: getUserById(originalGuest.assignedVolunteerId)?.name || originalGuest.assignedVolunteerId,
-        newValue: getUserById(updatedGuest.assignedVolunteerId)?.name || updatedGuest.assignedVolunteerId,
+        oldValue: originalGuest.assignedVolunteers.map(id => getUserById(id)?.name).join(', ') || 'None',
+        newValue: updatedGuest.assignedVolunteers.map(id => getUserById(id)?.name).join(', ') || 'None',
         updatedBy: currentUser?.id || '',
         updatedByName: currentUser?.name || '',
         updatedByRole: currentUser?.role || 'Volunteer'
@@ -466,6 +483,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setDorms(prevDorms => [...prevDorms, finalDorm]);
     setUpdates(prevUpdates => [updateRecord, ...prevUpdates]);
   };
+
+  // Function to reset all filters
+  const resetAllFilters = () => {
+    setGuestFilters({
+      search: '',
+      type: [],
+      status: [],
+      dorm: [],
+      volunteer: []
+    });
+    
+    setDormFilters({
+      search: '',
+      availability: []
+    });
+    
+    setUpdateFilters({
+      search: '',
+      type: [],
+      user: [],
+      entity: []
+    });
+  };
   
   // Function to check if the current user can perform an action
   const canPerformAction = (action: string, entity: Guest | Dorm): boolean => {
@@ -473,33 +513,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     
     switch (currentUser.role) {
       case 'Manager':
-        return true;
-        
       case 'Coordinator':
         return true;
         
       case 'Desk':
-        // Desk users can do most things except access the Update View
+        // Desk users can't access the Update View
         if (action === 'view_updates') return false;
         
-        // Special restrictions for payment updates
-        if (action === 'update_payment') {
-          if ('type' in entity) {
-            return entity.type === 'Normal' || entity.type === 'Events';
-          }
-        }
-        
+        // Can perform most actions except those reserved for higher roles
         return true;
         
       case 'Volunteer':
-        // Volunteers can only update their assigned guests
-        if ('assignedVolunteerId' in entity) {
-          if (entity.assignedVolunteerId !== currentUser.id) {
+        // Volunteers can only update status and location of their assigned guests
+        if ('assignedVolunteers' in entity) {
+          if (!entity.assignedVolunteers.includes(currentUser.id)) {
             return false;
           }
           
-          // Volunteers can only update status and volunteer assignment
-          return action === 'update_status' || action === 'update_volunteer';
+          // Volunteers can only update status (except check-in/out) and location
+          return action === 'update_status' || action === 'update_location';
         }
         
         return false;
@@ -533,7 +565,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     getGuestById,
     getDormById,
     getUpdatesForEntity,
-    canPerformAction
+    canPerformAction,
+    resetAllFilters
   };
   
   return (

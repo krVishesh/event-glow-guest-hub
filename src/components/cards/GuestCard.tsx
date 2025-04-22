@@ -1,11 +1,12 @@
 
 import React from "react";
 import { formatTimeAgo } from "@/lib/mock-data";
-import { Guest, User } from "@/lib/types";
+import { Guest } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useApp } from "@/lib/app-context";
+import { MapPin, CircleCheck } from "lucide-react";
 
 interface GuestCardProps {
   guest: Guest;
@@ -13,10 +14,12 @@ interface GuestCardProps {
 }
 
 export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
-  const { users, dorms, getUpdatesForEntity } = useApp();
+  const { users, dorms, getUpdatesForEntity, currentUser } = useApp();
   
-  // Get the assigned volunteer
-  const volunteer = users.find(u => u.id === guest.assignedVolunteerId);
+  // Get the assigned volunteers
+  const volunteers = guest.assignedVolunteers.map(id => 
+    users.find(u => u.id === id)
+  ).filter(Boolean);
   
   // Get the assigned dorm
   const dorm = guest.dormId ? dorms.find(d => d.id === guest.dormId) : null;
@@ -27,12 +30,12 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
   // Get guest type badge class
   const getGuestTypeBadgeClass = (type: string) => {
     switch(type) {
-      case 'Special': return 'badge-special';
-      case 'Foreign': return 'badge-foreign';
-      case 'Normal': return 'badge-normal';
-      case 'Events': return 'badge-events';
-      case 'Workers': return 'badge-workers';
-      case 'VITians': return 'badge-vitians';
+      case 'Special': return 'bg-purple-100 text-purple-800';
+      case 'Foreign': return 'bg-blue-100 text-blue-800';
+      case 'Normal': return 'bg-green-100 text-green-800';
+      case 'Events': return 'bg-yellow-100 text-yellow-800';
+      case 'Workers': return 'bg-orange-100 text-orange-800';
+      case 'VITians': return 'bg-pink-100 text-pink-800';
       default: return '';
     }
   };
@@ -44,16 +47,13 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
     >
       <CardContent className="p-0">
         <div className="relative">
-          {/* Colored top bar based on guest type */}
-          <div 
-            className={`h-2 w-full bg-guest-${guest.type.toLowerCase()}`}
-          ></div>
+          <div className={`h-2 w-full ${getGuestTypeBadgeClass(guest.type)}`}></div>
           
           <div className="p-5">
             <div className="mb-3 flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold">{guest.name}</h3>
-                <div className="mt-1 flex items-center gap-2">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
                   <Badge className={getGuestTypeBadgeClass(guest.type)}>
                     {guest.type}
                   </Badge>
@@ -71,6 +71,13 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
               )}
             </div>
             
+            {guest.location && (
+              <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
+                <MapPin className="h-4 w-4" />
+                <span>{guest.location}</span>
+              </div>
+            )}
+            
             <div className="grid gap-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-gray-500">Dorm:</span>
@@ -80,17 +87,31 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick }) => {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Volunteer:</span>
-                <span className="font-medium">
-                  {volunteer ? volunteer.name : "Unassigned"}
-                </span>
+                <span className="text-gray-500">Volunteers:</span>
+                <div className="flex flex-wrap gap-1 justify-end">
+                  {volunteers.length > 0 ? (
+                    volunteers.map(volunteer => (
+                      <Badge key={volunteer?.id} variant="outline" className="text-xs">
+                        {volunteer?.name}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-gray-400">Unassigned</span>
+                  )}
+                </div>
               </div>
               
               <div className="flex items-center justify-between">
                 <span className="text-gray-500">Payment:</span>
                 <Badge 
                   variant="secondary"
-                  className={`text-xs ${guest.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : guest.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}`}
+                  className={`text-xs ${
+                    guest.paymentStatus === 'Paid' 
+                      ? 'bg-green-100 text-green-700' 
+                      : guest.paymentStatus === 'Pending' 
+                        ? 'bg-yellow-100 text-yellow-700' 
+                        : 'bg-gray-100 text-gray-700'
+                  }`}
                 >
                   {guest.paymentStatus}
                 </Badge>

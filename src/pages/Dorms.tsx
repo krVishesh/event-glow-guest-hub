@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { DormCard } from "@/components/cards/DormCard";
@@ -173,7 +172,7 @@ const DormsPage: React.FC = () => {
       
       {/* Dorm Detail Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden">
           {selectedDorm && (
             <>
               <DialogHeader>
@@ -188,7 +187,7 @@ const DormsPage: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6">
+              <div className="space-y-6 overflow-y-auto pr-2">
                 <div className="grid gap-4 rounded-md border border-border bg-gray-50 p-4 sm:grid-cols-3">
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground">Total Capacity</div>
