@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { GuestType, GuestStatus, User, Guest } from "@/lib/types";
 import { Plus, Search, RotateCcw } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const GuestsPage: React.FC = () => {
   const { 
@@ -116,6 +117,7 @@ const GuestsPage: React.FC = () => {
     if (editedGuest) {
       updateGuest(editedGuest);
       setEditedGuest(null);
+      setDialogOpen(false); // Close dialog after saving
     }
   };
   
@@ -139,6 +141,7 @@ const GuestsPage: React.FC = () => {
     }
   };
 
+  
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex items-center justify-between">
@@ -182,7 +185,7 @@ const GuestsPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            className={guestFilters.type.length === 0 ? "bg-primary-100" : ""}
+            className={guestFilters.type.length === 0 ? "bg-primary-100 dark:bg-primary-900" : ""}
             onClick={() => setGuestFilters(prev => ({ ...prev, type: [] }))}
           >
             All Types
@@ -312,7 +315,7 @@ const GuestsPage: React.FC = () => {
       
       {/* Guest Detail Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden">
           {selectedGuest && editedGuest && (
             <>
               <DialogHeader>
@@ -324,125 +327,127 @@ const GuestsPage: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="mb-2 font-medium">Guest Status</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {guestStatuses.map(status => (
+              <ScrollArea className="overflow-y-auto" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="mb-2 font-medium">Guest Status</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {guestStatuses.map(status => (
+                          <Button
+                            key={status}
+                            variant={editedGuest.status === status ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleStatusChange(editedGuest, status)}
+                          >
+                            {status}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="mb-2 font-medium">Payment Status</h3>
+                      <div className="flex flex-wrap gap-2">
                         <Button
-                          key={status}
-                          variant={editedGuest.status === status ? "default" : "outline"}
+                          variant={editedGuest.paymentStatus === 'Paid' ? "default" : "outline"}
                           size="sm"
-                          onClick={() => handleStatusChange(editedGuest, status)}
+                          className={editedGuest.paymentStatus === 'Paid' ? "bg-green-600" : ""}
+                          onClick={() => handlePaymentChange(editedGuest, 'Paid')}
                         >
-                          {status}
+                          Paid
                         </Button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="mb-2 font-medium">Payment Status</h3>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant={editedGuest.paymentStatus === 'Paid' ? "default" : "outline"}
-                        size="sm"
-                        className={editedGuest.paymentStatus === 'Paid' ? "bg-green-600" : ""}
-                        onClick={() => handlePaymentChange(editedGuest, 'Paid')}
-                      >
-                        Paid
-                      </Button>
-                      <Button
-                        variant={editedGuest.paymentStatus === 'Pending' ? "default" : "outline"}
-                        size="sm"
-                        className={editedGuest.paymentStatus === 'Pending' ? "bg-yellow-600" : ""}
-                        onClick={() => handlePaymentChange(editedGuest, 'Pending')}
-                      >
-                        Pending
-                      </Button>
-                      <Button
-                        variant={editedGuest.paymentStatus === 'NA' ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handlePaymentChange(editedGuest, 'NA')}
-                      >
-                        Not Applicable
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="mb-2 font-medium">Assigned Volunteers</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {users
-                        .filter(user => user.role === 'Volunteer')
-                        .map(volunteer => (
-                          <Button
-                            key={volunteer.id}
-                            variant={(editedGuest.assignedVolunteers || []).includes(volunteer.id) ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handleVolunteerChange(editedGuest, volunteer.id)}
-                          >
-                            {volunteer.name}
-                          </Button>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="mb-2 font-medium">Dorm Assignment</h3>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant={editedGuest.dormId === null ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleDormChange(editedGuest, null)}
-                      >
-                        No Dorm
-                      </Button>
-                      
-                      {dorms
-                        .filter(dorm => dorm.occupiedBeds < dorm.capacity || dorm.guests.includes(selectedGuest.id))
-                        .map(dorm => (
-                          <Button
-                            key={dorm.id}
-                            variant={editedGuest.dormId === dorm.id ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => handleDormChange(editedGuest, dorm.id)}
-                          >
-                            {dorm.name} ({dorm.occupiedBeds}/{dorm.capacity})
-                          </Button>
-                        ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="mb-2 font-medium">Group Size</h3>
-                    <div className="text-lg font-medium">
-                      {editedGuest.groupSize} {editedGuest.groupSize === 1 ? 'person' : 'people'}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="mb-2 font-medium">Check-in / Check-out</h3>
-                    <div className="space-y-1 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Check-in:</span>
-                        <span className="font-medium">
-                          {editedGuest.checkInTime ? new Date(editedGuest.checkInTime).toLocaleString() : 'Not checked in'}
-                        </span>
+                        <Button
+                          variant={editedGuest.paymentStatus === 'Pending' ? "default" : "outline"}
+                          size="sm"
+                          className={editedGuest.paymentStatus === 'Pending' ? "bg-yellow-600" : ""}
+                          onClick={() => handlePaymentChange(editedGuest, 'Pending')}
+                        >
+                          Pending
+                        </Button>
+                        <Button
+                          variant={editedGuest.paymentStatus === 'NA' ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePaymentChange(editedGuest, 'NA')}
+                        >
+                          Not Applicable
+                        </Button>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Check-out:</span>
-                        <span className="font-medium">
-                          {editedGuest.checkOutTime ? new Date(editedGuest.checkOutTime).toLocaleString() : 'Not checked out'}
-                        </span>
+                    </div>
+                    
+                    <div>
+                      <h3 className="mb-2 font-medium">Assigned Volunteers</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {users
+                          .filter(user => user.role === 'Volunteer')
+                          .map(volunteer => (
+                            <Button
+                              key={volunteer.id}
+                              variant={(editedGuest.assignedVolunteers || []).includes(volunteer.id) ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => handleVolunteerChange(editedGuest, volunteer.id)}
+                            >
+                              {volunteer.name}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="mb-2 font-medium">Dorm Assignment</h3>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant={editedGuest.dormId === null ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handleDormChange(editedGuest, null)}
+                        >
+                          No Dorm
+                        </Button>
+                        
+                        {dorms
+                          .filter(dorm => dorm.occupiedBeds < dorm.capacity || dorm.id === editedGuest.dormId)
+                          .map(dorm => (
+                            <Button
+                              key={dorm.id}
+                              variant={editedGuest.dormId === dorm.id ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => handleDormChange(editedGuest, dorm.id)}
+                            >
+                              {dorm.name} ({dorm.occupiedBeds}/{dorm.capacity})
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="mb-2 font-medium">Group Size</h3>
+                      <div className="text-lg font-medium">
+                        {editedGuest.groupSize} {editedGuest.groupSize === 1 ? 'person' : 'people'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="mb-2 font-medium">Check-in / Check-out</h3>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Check-in:</span>
+                          <span className="font-medium">
+                            {editedGuest.checkInTime ? new Date(editedGuest.checkInTime).toLocaleString() : 'Not checked in'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Check-out:</span>
+                          <span className="font-medium">
+                            {editedGuest.checkOutTime ? new Date(editedGuest.checkOutTime).toLocaleString() : 'Not checked out'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </ScrollArea>
               
               <div className="mt-6 flex justify-end">
                 <Button 

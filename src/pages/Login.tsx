@@ -24,9 +24,9 @@ const Login: React.FC = () => {
     // Simulate a login delay
     setTimeout(() => {
       // In a real app, we would validate against a backend
-      // For now, just find a user with matching email
+      // For now, just find a user with matching email - users should have email property
       const user = users.find(
-        (u) => u.email.toLowerCase() === email.toLowerCase()
+        (u) => u.email && u.email.toLowerCase() === email.toLowerCase()
       );
 
       if (user) {

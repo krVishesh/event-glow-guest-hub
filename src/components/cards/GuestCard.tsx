@@ -35,18 +35,19 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
   // Get guest type badge class
   const getGuestTypeBadgeClass = (type: string) => {
     switch(type) {
-      case 'Special': return 'bg-purple-100 text-purple-800';
-      case 'Foreign': return 'bg-blue-100 text-blue-800';
-      case 'Normal': return 'bg-green-100 text-green-800';
-      case 'Events': return 'bg-yellow-100 text-yellow-800';
-      case 'Workers': return 'bg-orange-100 text-orange-800';
-      case 'VITians': return 'bg-pink-100 text-pink-800';
+      case 'Special': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'Foreign': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'Normal': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'Events': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'Workers': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'VITians': return 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200';
       default: return '';
     }
   };
   
   // Handle saving changes
-  const handleSaveChanges = () => {
+  const handleSaveChanges = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering onClick of parent card
     updateGuest(localGuest);
     setHasChanges(false);
   };
@@ -89,7 +90,7 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
             </div>
             
             {localGuest.location && (
-              <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
+              <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                 <MapPin className="h-4 w-4" />
                 <span>{localGuest.location}</span>
               </div>
@@ -97,14 +98,14 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
             
             <div className="grid gap-2 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Dorm:</span>
+                <span className="text-gray-500 dark:text-gray-400">Dorm:</span>
                 <span className="font-medium">
                   {dorm ? dorm.name : "Not Assigned"}
                 </span>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Volunteers:</span>
+                <span className="text-gray-500 dark:text-gray-400">Volunteers:</span>
                 <div className="flex flex-wrap gap-1 justify-end">
                   {volunteers.length > 0 ? (
                     volunteers.map(volunteer => (
@@ -113,21 +114,21 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
                       </Badge>
                     ))
                   ) : (
-                    <span className="text-gray-400">Unassigned</span>
+                    <span className="text-gray-400 dark:text-gray-500">Unassigned</span>
                   )}
                 </div>
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Payment:</span>
+                <span className="text-gray-500 dark:text-gray-400">Payment:</span>
                 <Badge 
                   variant="secondary"
                   className={`text-xs ${
                     localGuest.paymentStatus === 'Paid' 
-                      ? 'bg-green-100 text-green-700' 
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' 
                       : localGuest.paymentStatus === 'Pending' 
-                        ? 'bg-yellow-100 text-yellow-700' 
-                        : 'bg-gray-100 text-gray-700'
+                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200' 
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                   }`}
                 >
                   {localGuest.paymentStatus}
@@ -138,10 +139,7 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
             {editable && hasChanges && (
               <div className="mt-4 flex justify-end">
                 <Button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSaveChanges();
-                  }}
+                  onClick={handleSaveChanges}
                   className="flex items-center gap-2"
                   size="sm"
                 >
@@ -152,20 +150,20 @@ export const GuestCard: React.FC<GuestCardProps> = ({ guest, onClick, editable =
             )}
             
             {updates.length > 0 && (
-              <div className="mt-4 border-t border-gray-100 pt-3">
-                <h4 className="mb-2 text-xs font-medium text-gray-500">Recent Activity</h4>
+              <div className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-3">
+                <h4 className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400">Recent Activity</h4>
                 <div className="space-y-2">
                   {updates.map(update => (
-                    <div key={update.id} className="rounded-md bg-gray-50 px-2 py-1 text-xs">
+                    <div key={update.id} className="rounded-md bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs">
                       <span className="font-medium">{update.updateType}</span>
-                      <span className="text-gray-500"> by {update.updatedByName} • {formatTimeAgo(update.timestamp)}</span>
+                      <span className="text-gray-500 dark:text-gray-400"> by {update.updatedByName} • {formatTimeAgo(update.timestamp)}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
             
-            <div className="mt-4 text-right text-xs text-gray-400">
+            <div className="mt-4 text-right text-xs text-gray-400 dark:text-gray-500">
               Last updated {formatTimeAgo(localGuest.lastUpdated)}
             </div>
           </div>

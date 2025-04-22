@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dorm, Guest } from "@/lib/types";
 import { formatTimeAgo } from "@/lib/mock-data";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const DormsPage: React.FC = () => {
   const { 
@@ -118,7 +119,7 @@ const DormsPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            className={dormFilters.availability.length === 0 ? "bg-primary-100" : ""}
+            className={dormFilters.availability.length === 0 ? "bg-primary-100 dark:bg-primary-900" : ""}
             onClick={() => setDormFilters(prev => ({ ...prev, availability: [] }))}
           >
             All Dorms
@@ -127,7 +128,7 @@ const DormsPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            className={dormFilters.availability.includes('Available') ? "bg-green-100 text-green-700" : ""}
+            className={dormFilters.availability.includes('Available') ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200" : ""}
             onClick={() => handleFilterChange('availability', 'Available')}
           >
             Available
@@ -136,7 +137,7 @@ const DormsPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            className={dormFilters.availability.includes('Full') ? "bg-red-100 text-red-700" : ""}
+            className={dormFilters.availability.includes('Full') ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200" : ""}
             onClick={() => handleFilterChange('availability', 'Full')}
           >
             Full
@@ -227,58 +228,60 @@ const DormsPage: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="space-y-6 overflow-y-auto pr-2" style={{ maxHeight: 'calc(80vh - 120px)' }}>
-                <div className="grid gap-4 rounded-md border border-border bg-gray-50 p-4 sm:grid-cols-3">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Total Capacity</div>
-                    <div className="text-2xl font-bold">{selectedDorm.capacity}</div>
-                    <div className="text-xs text-muted-foreground">beds</div>
+              <ScrollArea className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+                <div className="space-y-6">
+                  <div className="grid gap-4 rounded-md border border-border bg-gray-50 dark:bg-gray-800 p-4 sm:grid-cols-3">
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Total Capacity</div>
+                      <div className="text-2xl font-bold">{selectedDorm.capacity}</div>
+                      <div className="text-xs text-muted-foreground">beds</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Occupied</div>
+                      <div className="text-2xl font-bold">{selectedDorm.occupiedBeds}</div>
+                      <div className="text-xs text-muted-foreground">beds</div>
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="text-sm text-muted-foreground">Available</div>
+                      <div className="text-2xl font-bold">{selectedDorm.capacity - selectedDorm.occupiedBeds}</div>
+                      <div className="text-xs text-muted-foreground">beds</div>
+                    </div>
                   </div>
                   
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Occupied</div>
-                    <div className="text-2xl font-bold">{selectedDorm.occupiedBeds}</div>
-                    <div className="text-xs text-muted-foreground">beds</div>
+                  <div>
+                    <h3 className="mb-3 text-lg font-medium">Assigned Guests</h3>
+                    {getDormGuests(selectedDorm.id).length > 0 ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {getDormGuests(selectedDorm.id).map(guest => (
+                          <GuestCard key={guest.id} guest={guest} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-md border p-4 text-center text-muted-foreground">
+                        No guests assigned to this dorm.
+                      </div>
+                    )}
                   </div>
                   
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Available</div>
-                    <div className="text-2xl font-bold">{selectedDorm.capacity - selectedDorm.occupiedBeds}</div>
-                    <div className="text-xs text-muted-foreground">beds</div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="mb-3 text-lg font-medium">Assigned Guests</h3>
-                  {getDormGuests(selectedDorm.id).length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {getDormGuests(selectedDorm.id).map(guest => (
-                        <GuestCard key={guest.id} guest={guest} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-md border p-4 text-center text-muted-foreground">
-                      No guests assigned to this dorm.
-                    </div>
-                  )}
-                </div>
-                
-                <div className="rounded-md border p-4">
-                  <h3 className="mb-2 text-sm font-medium">Dorm Details</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Last Updated:</span>
-                      <span className="font-medium">{formatTimeAgo(selectedDorm.lastUpdated)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Occupancy Rate:</span>
-                      <span className="font-medium">
-                        {Math.round((selectedDorm.occupiedBeds / selectedDorm.capacity) * 100)}%
-                      </span>
+                  <div className="rounded-md border p-4">
+                    <h3 className="mb-2 text-sm font-medium">Dorm Details</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Last Updated:</span>
+                        <span className="font-medium">{formatTimeAgo(selectedDorm.lastUpdated)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Occupancy Rate:</span>
+                        <span className="font-medium">
+                          {Math.round((selectedDorm.occupiedBeds / selectedDorm.capacity) * 100)}%
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </ScrollArea>
             </>
           )}
         </DialogContent>
