@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
   
   // Filter guests based on current user role
   const filteredGuests = currentUser?.role === 'Volunteer' 
-    ? guests.filter(g => g.assignedVolunteerId === currentUser.id)
+    ? guests.filter(g => g.assignedVolunteers && g.assignedVolunteers.includes(currentUser.id))
     : guests;
   
   // Get counts for stats
