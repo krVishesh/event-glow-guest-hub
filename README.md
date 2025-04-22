@@ -6,8 +6,9 @@ A modern web application built with React, TypeScript, and shadcn/ui for managin
 
 This project is a guest management system that allows event organizers to:
 - Manage guest lists
-- Track RSVPs
-- Monitor event attendance
+- Manage dorms lists
+- Track Updates
+- Monitor guest attendance
 
 ## Backend Development Needed
 
@@ -15,12 +16,12 @@ This frontend upgrade requires a corresponding backend implementation. We're loo
 
 - User authentication and authorization
 - Guest data management
-- RSVP tracking
-- Event management
+- Dorm management
 - Email notification system
 - Analytics and reporting
+- and more of what you can think of
 
-If you're interested in contributing to the backend development, please check out our [contributing guidelines](#contributing) and get in touch!
+If you're interested in contributing to the backend development, please check out the repo, fork it, develop it and get in touch!
 
 ## Technology Stack
 
